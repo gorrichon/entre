@@ -807,22 +807,7 @@ let state = {
 // LIFF 初期化
 // ================================================================
 async function initLiff() {
-  // 3秒でタイムアウト（ブラウザで開いた場合でも止まらない）
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('timeout')), 3000)
-  );
-  try {
-    await Promise.race([
-      liff.init({ liffId: LIFF_ID }),
-      timeout
-    ]);
-    if (liff.isLoggedIn()) {
-      const profile = await liff.getProfile();
-      state.lineUserId = profile.userId;
-    }
-  } catch(e) {
-    console.warn('LIFF init error (continuing anyway):', e.message);
-  }
+  // ★ まず即座にローディングを消してメニューを表示
   document.getElementById('loadingWrap').style.display = 'none';
 
   // URLパラメータ確認（treatment=指定の場合、直接そのメニューへ）
@@ -832,8 +817,18 @@ async function initLiff() {
     const m = MENUS.find(m => m.name === treatParam);
     if (m) {
       selectTreatment(m);
-      return;
     }
+  }
+
+  // LIFF初期化はバックグラウンドで実行（UIをブロックしない）
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      state.lineUserId = profile.userId;
+    }
+  } catch(e) {
+    console.warn('LIFF init error:', e.message);
   }
 }
 
@@ -1121,4 +1116,7 @@ async function loadMyReservation() {
 // ================================================================
 // 問診票
 // ================================================================
-function selectQ(qid, v
+function selectQ(qid, val) {
+  state.qAnswers[qid] = val;
+  document.querySelectorAll(`[id^="${qid}-"]`).forEach(el => {
+    el.cla
