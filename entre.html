@@ -478,8 +478,12 @@
      ================================================================ -->
 <div class="screen" id="screen-form">
   <div class="form-section">
-    <div class="info-card" style="margin:4px 0 16px; padding:12px 16px; background:var(--green-bg);">
+    <div class="info-card" style="margin:4px 0 10px; padding:12px 16px; background:var(--green-bg);">
       <p style="font-size:13px; color:var(--green); font-weight:600;" id="formSummaryLabel"></p>
+    </div>
+    <!-- 過去データ自動入力バナー -->
+    <div id="prefillBanner" style="display:none; margin:0 0 14px; padding:11px 14px; background:#FFF8E1; border-radius:10px; border-left:4px solid #FFC107;">
+      <p style="font-size:12px; color:#7B6000;">⚡ 以前ご登録の情報を自動入力しました。変更がある場合は修正してください。</p>
     </div>
     <div class="form-group">
       <label class="form-label">お名前（フルネーム）<span>*</span></label>
@@ -1005,6 +1009,28 @@ function goToForm() {
   const date = new Date(state.selectedDate + 'T00:00:00');
   document.getElementById('formSummaryLabel').textContent =
     `🦷 ${state.selectedMenu.name}  📅 ${state.selectedDate}（${jp[date.getDay()]}）  🕐 ${state.selectedTime}〜`;
+
+  // URLパラメータから過去の登録データを自動入力
+  const params = new URLSearchParams(location.search);
+  const prefillName  = params.get('name');
+  const prefillPhone = params.get('phone');
+
+  if (prefillName && !document.getElementById('inputName').value) {
+    document.getElementById('inputName').value = prefillName;
+  }
+  if (prefillPhone && !document.getElementById('inputPhone').value) {
+    document.getElementById('inputPhone').value = prefillPhone;
+  }
+
+  // 過去データが入っていれば「以前の情報です」バナーを表示
+  const banner = document.getElementById('prefillBanner');
+  if (prefillName || prefillPhone) {
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  checkFormValid();
   showScreen('screen-form');
 }
 
@@ -1096,38 +1122,4 @@ function selectQ(qid, val) {
 }
 
 async function submitQuestionnaire() {
-  document.getElementById('loadingWrap').style.display = 'flex';
-  const answers = {
-    chief_complaint: document.getElementById('q1').value,
-    has_pain:        state.qAnswers['q2'] || '未回答',
-    taking_medicine: state.qAnswers['q3'] || '未回答',
-    allergy:         document.getElementById('q4').value,
-    medical_history: document.getElementById('q5').value,
-    line_user_id:    state.lineUserId
-  };
-  console.log('問診票送信:', answers);
-  // ※ ここでn8nのWebhookへPOSTする処理を追加
-  setTimeout(() => {
-    document.getElementById('loadingWrap').style.display = 'none';
-    showScreen('screen-q-success');
-  }, 800);
-}
-
-// ================================================================
-// その他
-// ================================================================
-function openMap() {
-  window.open('https://maps.google.com/?q=東山通歯科クリニック', '_blank');
-}
-
-function openLine() {
-  try { liff.closeWindow(); } catch(e) {}
-}
-
-// ================================================================
-// 起動
-// ================================================================
-window.addEventListener('DOMContentLoaded', initLiff);
-</script>
-</body>
-</html>
+  document.getElementById('loadingWrap').style.display =
