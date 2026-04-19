@@ -349,7 +349,7 @@ var MENUS = [
 var SWD={am:['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'],pm:['14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00']};
 var SST={am:['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'],pm:['14:00','14:30','15:00','15:30','16:00','16:30']};
 var JP=['日','月','火','水','木','金','土'];
-var S={menu:null,date:null,time:null,name:'',phone:'',visit:'new',hist:['s-main'],calY:0,calM:0,qa:{}};
+var S={menu:null,date:null,time:null,name:'',phone:'',visit:'new',hist:['s-main'],calY:0,calM:0,qa:{},prefillName:'',prefillPhone:''};
 
 function go(id){
   document.querySelectorAll('.scr').forEach(function(e){e.classList.remove('on');});
@@ -423,8 +423,7 @@ function pickTime(t){S.time=t;drawSlots();document.getElementById('timeBtn').dis
 function goForm(){
   var dt=new Date(S.date+'T00:00:00');
   document.getElementById('formLbl').textContent=S.menu.name+' | '+S.date+'('+JP[dt.getDay()]+'曜) '+S.time+'〜';
-  var p=new URLSearchParams(location.search);
-  var pn=p.get('name'),pp=p.get('phone');
+  var pn=S.prefillName,pp=S.prefillPhone;
   if(pn&&!document.getElementById('inpName').value) document.getElementById('inpName').value=pn;
   if(pp&&!document.getElementById('inpPhone').value) document.getElementById('inpPhone').value=pp;
   document.getElementById('prefillNote').style.display=(pn||pp)?'block':'none';
@@ -463,4 +462,34 @@ function submitRes(){
 }
 function setQ(q,v,a,b){S.qa[q]=v;document.getElementById(a).className='rb'+(v==='yes'?' sel':'');document.getElementById(b).className='rb'+(v==='no'?' sel':'');}
 function tryClose(){try{liff.closeWindow();}catch(e){window.close();}}
+
+// ============================================================
+// URLパラメーター読み取り（prefill用）
+// liff.state経由にも対応（OAuth redirect後）
+// ============================================================
+(function(){
+  function readParams(){
+    var p=new URLSearchParams(location.search);
+    var n=p.get('name'),ph=p.get('phone');
+    // liff.state にエンコードされている場合をデコード
+    if((!n||!ph)&&p.get('liff.state')){
+      try{
+        var ls=decodeURIComponent(p.get('liff.state')).replace(/^[/?]*/,'');
+        var lp=new URLSearchParams(ls);
+        if(!n) n=lp.get('name');
+        if(!ph) ph=lp.get('phone');
+      }catch(e){}
+    }
+    if(n) S.prefillName=n;
+    if(ph) S.prefillPhone=ph;
+  }
+  // まず直接読み取り
+  readParams();
+  // liff.init後に再読み取り（より確実）
+  if(typeof liff!=='undefined'){
+    liff.init({liffId:LIFF_ID}).then(readParams).catch(function(){});
+  }
+})();
 </script>
+</body>
+</html>
