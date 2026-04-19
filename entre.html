@@ -1,602 +1,268 @@
-<!DOCTYPE html>
+<\!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>東山通歯科クリニック</title>
-  <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js" defer></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-    :root {
-      --green:  #27AE60; --green-bg:  #E8F8EE; --green-light: #4CD07D;
-      --blue:   #2980B9; --blue-bg:   #E8F4FD; --blue-light:  #5DADE2;
-      --orange: #D35400; --orange-bg: #FEF0E7; --orange-light: #E67E22;
-      --gold:   #9A6F00; --gold-bg:   #FDF5E0; --gold-light:   #C9920A;
-      --purple: #8E44AD; --purple-bg: #F4ECF7; --purple-light: #A569BD;
-      --teal:   #117A65; --teal-bg:   #E8F6F3; --teal-light:   #1ABC9C;
-      --radius: 18px;
-      --shadow: 0 4px 16px rgba(0,0,0,0.10);
-    }
-
-    body {
-      font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif;
-      background: #F5F7FA;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ── Header ── */
-    .header {
-      background: #fff;
-      padding: 14px 20px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid #E8ECF0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .header-back {
-      font-size: 22px;
-      cursor: pointer;
-      color: #555;
-      padding: 4px 8px 4px 0;
-    }
-    .header-logo {
-      width: 32px; height: 32px;
-      background: var(--green);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 16px;
-    }
-    .header-title { font-size: 15px; font-weight: 700; color: #1a1a1a; flex: 1; }
-    .header-subtitle { font-size: 11px; color: #888; margin-top: 1px; }
-
-    /* ── Screen system ── */
-    .screen { display: none; animation: fadeIn 0.25s ease; }
-    .screen.active { display: block; }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-
-    /* ── Main Menu ── */
-    .menu-header {
-      padding: 20px 20px 12px;
-      text-align: center;
-    }
-    .menu-header h2 { font-size: 18px; color: #1a1a1a; font-weight: 700; }
-    .menu-header p { font-size: 12px; color: #888; margin-top: 4px; }
-
-    .menu-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      padding: 0 16px 30px;
-    }
-
-    .menu-card {
-      background: #fff;
-      border-radius: var(--radius);
-      padding: 22px 14px 18px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-      border-bottom: 3px solid transparent;
-    }
-    .menu-card:active { transform: scale(0.96); }
-
-    .menu-card.green  { background: var(--green-bg);  border-color: var(--green); }
-    .menu-card.blue   { background: var(--blue-bg);   border-color: var(--blue); }
-    .menu-card.orange { background: var(--orange-bg); border-color: var(--orange); }
-    .menu-card.gold   { background: var(--gold-bg);   border-color: var(--gold); }
-    .menu-card.purple { background: var(--purple-bg); border-color: var(--purple); }
-    .menu-card.teal   { background: var(--teal-bg);   border-color: var(--teal); }
-
-    .menu-icon {
-      width: 60px; height: 60px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 12px;
-      font-size: 26px;
-    }
-    .green  .menu-icon { background: var(--green); }
-    .blue   .menu-icon { background: var(--blue); }
-    .orange .menu-icon { background: var(--orange); }
-    .gold   .menu-icon { background: var(--gold); }
-    .purple .menu-icon { background: var(--purple); }
-    .teal   .menu-icon { background: var(--teal); }
-
-    .menu-label { font-size: 15px; font-weight: 700; color: #1a1a1a; line-height: 1.3; }
-    .menu-sub   { font-size: 11px; color: #666; margin-top: 4px; }
-
-    /* ── Treatment select ── */
-    .section-title {
-      font-size: 14px; color: #888; font-weight: 600;
-      padding: 18px 20px 8px; letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .treat-list { padding: 0 16px 30px; display: flex; flex-direction: column; gap: 10px; }
-
-    .treat-item {
-      background: #fff;
-      border-radius: 14px;
-      padding: 16px 18px;
-      display: flex; align-items: center; gap: 14px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      transition: transform 0.12s;
-      border-left: 4px solid var(--green);
-    }
-    .treat-item:active { transform: scale(0.97); }
-    .treat-dot {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: var(--green-bg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; flex-shrink: 0;
-    }
-    .treat-info { flex: 1; }
-    .treat-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
-    .treat-dur  { font-size: 12px; color: #888; margin-top: 2px; }
-    .treat-arrow { color: #bbb; font-size: 18px; }
-
-    /* ── Calendar ── */
-    .cal-wrapper { padding: 14px 16px 30px; }
-    .cal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .cal-nav { font-size: 22px; cursor: pointer; padding: 4px 10px; color: #555; }
-    .cal-month { font-size: 17px; font-weight: 700; color: #1a1a1a; }
-
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .cal-day-name {
-      text-align: center; font-size: 11px; color: #888;
-      font-weight: 600; padding: 6px 0;
-    }
-    .cal-day-name:first-child { color: #E74C3C; }
-    .cal-day-name:last-child  { color: #2980B9; }
-
-    .cal-day {
-      aspect-ratio: 1;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; font-size: 13px; cursor: pointer;
-      transition: background 0.1s;
-    }
-    .cal-day.empty { cursor: default; }
-    .cal-day.today { font-weight: 700; color: var(--green); }
-    .cal-day.closed { color: #ddd; cursor: not-allowed; }
-    .cal-day.sunday { color: #E74C3C; }
-    .cal-day.saturday { color: #2980B9; }
-    .cal-day.selected { background: var(--green); color: #fff !important; font-weight: 700; }
-    .cal-day:not(.empty):not(.closed):not(.selected):active { background: var(--green-bg); }
-
-    /* ── Time slots ── */
-    .time-section { padding: 0 16px 30px; }
-    .time-period { font-size: 13px; color: #888; font-weight: 600; margin: 14px 0 8px; }
-    .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .time-slot {
-      border: 2px solid var(--green);
-      border-radius: 10px;
-      padding: 10px 6px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 14px; font-weight: 600; color: var(--green);
-      transition: all 0.12s;
-    }
-    .time-slot.full { border-color: #ddd; color: #bbb; cursor: not-allowed; font-weight: 400; }
-    .time-slot.selected { background: var(--green); color: #fff; }
-    .time-slot:not(.full):active { background: var(--green-bg); }
-
-    /* ── Form ── */
-    .form-section { padding: 8px 16px 30px; }
-    .form-group { margin-bottom: 18px; }
-    .form-label {
-      font-size: 13px; font-weight: 600; color: #555;
-      margin-bottom: 6px; display: block;
-    }
-    .form-label span { color: #E74C3C; margin-left: 3px; }
-    .form-input {
-      width: 100%; border: 2px solid #E8ECF0;
-      border-radius: 10px; padding: 13px 14px;
-      font-size: 16px; color: #1a1a1a;
-      outline: none; transition: border-color 0.15s;
-      font-family: inherit;
-    }
-    .form-input:focus { border-color: var(--green); }
-    .form-hint { font-size: 11px; color: #aaa; margin-top: 4px; }
-
-    /* ── Confirmation card ── */
-    .confirm-card {
-      background: #fff;
-      border-radius: var(--radius);
-      margin: 14px 16px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-    .confirm-card-header {
-      background: var(--green);
-      color: #fff;
-      padding: 16px 20px;
-      font-size: 15px; font-weight: 700;
-    }
-    .confirm-row {
-      display: flex; align-items: flex-start;
-      padding: 14px 20px;
-      border-bottom: 1px solid #F0F3F5;
-      gap: 12px;
-    }
-    .confirm-row:last-child { border-bottom: none; }
-    .confirm-icon { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
-    .confirm-key { font-size: 12px; color: #888; margin-bottom: 3px; }
-    .confirm-val { font-size: 15px; color: #1a1a1a; font-weight: 600; }
-
-    /* ── Success ── */
-    .success-wrap {
-      text-align: center;
-      padding: 50px 30px;
-    }
-    .success-icon { font-size: 72px; margin-bottom: 20px; }
-    .success-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
-    .success-sub   { font-size: 14px; color: #666; line-height: 1.7; }
-
-    /* ── Info pages ── */
-    .info-card {
-      background: #fff;
-      border-radius: 14px;
-      margin: 12px 16px;
-      padding: 18px 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    }
-    .info-card h3 { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
-    .info-card p  { font-size: 14px; color: #555; line-height: 1.7; }
-
-    .hours-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    .hours-table th, .hours-table td {
-      padding: 9px 12px; font-size: 13px; text-align: center;
-      border-bottom: 1px solid #F0F3F5;
-    }
-    .hours-table th { color: #888; font-weight: 600; }
-    .hours-table td { color: #333; }
-    .hours-table td:first-child { text-align: left; font-weight: 600; }
-    .closed-mark { color: #E74C3C; font-weight: 700; }
-    .open-mark { color: var(--green); font-weight: 700; }
-
-    .treatment-price-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 0; border-bottom: 1px solid #F0F3F5;
-    }
-    .treatment-price-item:last-child { border-bottom: none; }
-    .tp-name { font-size: 14px; color: #1a1a1a; font-weight: 600; }
-    .tp-dur  { font-size: 12px; color: #888; }
-    .tp-price { font-size: 14px; color: var(--green); font-weight: 700; }
-
-    .contact-btn {
-      display: flex; align-items: center; gap: 14px;
-      background: #fff; border-radius: 14px;
-      padding: 18px 20px; margin: 10px 16px;
-      cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      text-decoration: none; color: #1a1a1a;
-      transition: transform 0.12s;
-    }
-    .contact-btn:active { transform: scale(0.97); }
-    .contact-btn-icon {
-      width: 46px; height: 46px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; flex-shrink: 0;
-    }
-    .contact-btn-label { font-size: 15px; font-weight: 700; }
-    .contact-btn-sub   { font-size: 12px; color: #888; margin-top: 2px; }
-
-    .questionnaire-q {
-      background: #fff; border-radius: 14px;
-      margin: 10px 16px; padding: 16px 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    }
-    .questionnaire-q .q-label { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 8px; }
-    .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
-    .radio-btn {
-      border: 2px solid #E8ECF0; border-radius: 8px;
-      padding: 8px 16px; font-size: 13px; cursor: pointer;
-      transition: all 0.12s; color: #555;
-    }
-    .radio-btn.selected { border-color: var(--teal); background: var(--teal-bg); color: var(--teal); font-weight: 600; }
-    .q-textarea {
-      width: 100%; border: 2px solid #E8ECF0; border-radius: 10px;
-      padding: 12px 14px; font-size: 14px; font-family: inherit;
-      resize: none; outline: none; color: #1a1a1a;
-      transition: border-color 0.15s;
-    }
-    .q-textarea:focus { border-color: var(--teal); }
-
-    /* ── Buttons ── */
-    .btn-wrap { padding: 16px 16px 30px; }
-    .btn-primary {
-      width: 100%; padding: 17px;
-      border: none; border-radius: 14px;
-      font-size: 16px; font-weight: 700;
-      cursor: pointer; color: #fff;
-      background: var(--green);
-      transition: opacity 0.15s;
-      font-family: inherit;
-    }
-    .btn-primary:active { opacity: 0.85; }
-    .btn-primary:disabled { background: #D5D5D5; cursor: not-allowed; }
-    .btn-primary.blue   { background: var(--blue); }
-    .btn-primary.orange { background: var(--orange); }
-    .btn-primary.gold   { background: var(--gold); }
-    .btn-primary.purple { background: var(--purple); }
-    .btn-primary.teal   { background: var(--teal); }
-    .btn-secondary {
-      width: 100%; padding: 14px;
-      border: 2px solid #E0E0E0; border-radius: 14px;
-      font-size: 15px; font-weight: 600;
-      cursor: pointer; color: #555; background: #fff;
-      margin-top: 10px; font-family: inherit;
-      transition: background 0.12s;
-    }
-    .btn-secondary:active { background: #F5F5F5; }
-
-    /* ── Loading ── */
-    .loading-wrap {
-      position: fixed; inset: 0;
-      background: rgba(255,255,255,0.9);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 999;
-    }
-    .spinner {
-      width: 42px; height: 42px;
-      border: 3px solid #E8ECF0;
-      border-top-color: var(--green);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 14px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-wrap p { font-size: 14px; color: #888; }
-
-    .badge {
-      display: inline-block; background: var(--green);
-      color: #fff; font-size: 11px; font-weight: 700;
-      padding: 2px 8px; border-radius: 20px;
-      margin-left: 6px; vertical-align: middle;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>東山通歯科クリニック</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --green:#27AE60;--green-bg:#E8F8EE;
+  --blue:#2980B9;--blue-bg:#E8F4FD;
+  --orange:#D35400;--orange-bg:#FEF0E7;
+  --gold:#9A6F00;--gold-bg:#FDF5E0;
+  --purple:#8E44AD;--purple-bg:#F4ECF7;
+  --teal:#117A65;--teal-bg:#E8F6F3;
+}
+body{font-family:-apple-system,'Hiragino Sans','Yu Gothic',sans-serif;background:#F5F7FA;min-height:100vh;}
+.hdr{background:#fff;padding:14px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;position:sticky;top:0;z-index:50;}
+.hdr-back{font-size:24px;cursor:pointer;color:#555;padding:4px 8px 4px 0;display:none;}
+.hdr-logo{width:32px;height:32px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;}
+.hdr-title{font-size:15px;font-weight:700;color:#1a1a1a;}
+.hdr-sub{font-size:11px;color:#888;margin-top:1px;}
+.scr{display:none;}
+.scr.on{display:block;}
+.menu-hd{padding:18px 16px 10px;text-align:center;}
+.menu-hd h2{font-size:17px;font-weight:700;color:#1a1a1a;}
+.menu-hd p{font-size:12px;color:#888;margin-top:3px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 30px;}
+.card{background:#fff;border-radius:16px;padding:20px 12px 16px;text-align:center;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,0.09);border-bottom:3px solid transparent;}
+.card.green{background:var(--green-bg);border-color:var(--green);}
+.card.blue{background:var(--blue-bg);border-color:var(--blue);}
+.card.orange{background:var(--orange-bg);border-color:var(--orange);}
+.card.gold{background:var(--gold-bg);border-color:var(--gold);}
+.card.purple{background:var(--purple-bg);border-color:var(--purple);}
+.card.teal{background:var(--teal-bg);border-color:var(--teal);}
+.card-icon{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px;}
+.green .card-icon{background:var(--green);}
+.blue .card-icon{background:var(--blue);}
+.orange .card-icon{background:var(--orange);}
+.gold .card-icon{background:var(--gold);}
+.purple .card-icon{background:var(--purple);}
+.teal .card-icon{background:var(--teal);}
+.card-lbl{font-size:14px;font-weight:700;color:#1a1a1a;line-height:1.3;}
+.card-sub{font-size:11px;color:#666;margin-top:3px;}
+.sec-ttl{font-size:13px;color:#888;font-weight:600;padding:16px 18px 8px;}
+.treat-list{padding:0 14px 30px;display:flex;flex-direction:column;gap:10px;}
+.treat{background:#fff;border-radius:13px;padding:15px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.07);border-left:4px solid var(--green);}
+.treat-dot{width:36px;height:36px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.treat-name{font-size:15px;font-weight:700;color:#1a1a1a;}
+.treat-dur{font-size:12px;color:#888;margin-top:2px;}
+.treat-arr{color:#bbb;font-size:18px;margin-left:auto;}
+.cal-wrap{padding:12px 14px 20px;}
+.cal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-nav{font-size:22px;cursor:pointer;padding:4px 10px;color:#555;}
+.cal-month{font-size:16px;font-weight:700;color:#1a1a1a;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-dn{text-align:center;font-size:11px;color:#888;font-weight:600;padding:5px 0;}
+.cal-dn:first-child{color:#E74C3C;}
+.cal-dn:last-child{color:#2980B9;}
+.cal-d{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;cursor:pointer;}
+.cal-d.empty,.cal-d.closed{cursor:not-allowed;}
+.cal-d.closed{color:#ddd;}
+.cal-d.sun:not(.closed){color:#E74C3C;}
+.cal-d.sat:not(.closed){color:#2980B9;}
+.cal-d.today{font-weight:700;}
+.cal-d.sel{background:var(--green);color:#fff\!important;font-weight:700;}
+.time-wrap{padding:0 14px 20px;}
+.time-period{font-size:12px;color:#888;font-weight:600;margin:12px 0 6px;}
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.slot{border:2px solid var(--green);border-radius:9px;padding:10px 4px;text-align:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--green);}
+.slot.sel{background:var(--green);color:#fff;}
+.form-wrap{padding:8px 14px 30px;}
+.info-box{padding:11px 14px;border-radius:10px;margin-bottom:10px;}
+.grn-box{background:var(--green-bg);}
+.ylw-box{background:#FFF8E1;border-left:4px solid #FFC107;}
+.form-lbl{font-size:13px;font-weight:600;color:#555;margin-bottom:5px;display:block;}
+.form-lbl span{color:#E74C3C;}
+.form-inp{width:100%;border:2px solid #E8ECF0;border-radius:9px;padding:12px 13px;font-size:16px;color:#1a1a1a;outline:none;font-family:inherit;}
+.form-inp:focus{border-color:var(--green);}
+.form-group{margin-bottom:16px;}
+.radio-row{display:flex;gap:8px;margin-top:4px;}
+.rb{border:2px solid #E8ECF0;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;color:#555;}
+.rb.sel{border-color:var(--green);background:var(--green-bg);color:var(--green);font-weight:600;}
+.conf-card{background:#fff;border-radius:16px;margin:12px 14px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,0.09);}
+.conf-hd{background:var(--green);color:#fff;padding:14px 18px;font-size:15px;font-weight:700;}
+.conf-row{display:flex;align-items:flex-start;padding:13px 18px;border-bottom:1px solid #F0F3F5;gap:11px;}
+.conf-row:last-child{border-bottom:none;}
+.conf-ic{font-size:19px;width:26px;text-align:center;flex-shrink:0;}
+.conf-key{font-size:12px;color:#888;margin-bottom:2px;}
+.conf-val{font-size:14px;color:#1a1a1a;font-weight:600;}
+.suc-wrap{text-align:center;padding:48px 28px;}
+.suc-ic{font-size:70px;margin-bottom:18px;}
+.suc-ttl{font-size:21px;font-weight:700;color:#1a1a1a;margin-bottom:9px;}
+.suc-sub{font-size:14px;color:#666;line-height:1.7;}
+.btn-wrap{padding:14px 14px 28px;}
+.btn{width:100%;padding:16px;border:none;border-radius:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:0;}
+.btn.primary{background:var(--green);color:#fff;}
+.btn.primary:disabled{background:#D5D5D5;cursor:not-allowed;}
+.btn.secondary{background:#fff;color:#555;border:2px solid #E0E0E0;margin-top:9px;}
+.btn.teal{background:var(--teal);color:#fff;}
+.btn.orange-btn{background:var(--orange);color:#fff;}
+.info-card{background:#fff;border-radius:13px;margin:10px 14px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,0.07);}
+.info-card h3{font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:9px;}
+.info-card p{font-size:13px;color:#555;line-height:1.7;}
+.hrs-tbl{width:100%;border-collapse:collapse;margin-top:7px;}
+.hrs-tbl th,.hrs-tbl td{padding:8px 10px;font-size:12px;text-align:center;border-bottom:1px solid #F0F3F5;}
+.hrs-tbl th{color:#888;font-weight:600;}
+.hrs-tbl td:first-child{text-align:left;font-weight:600;}
+.open-mark{color:var(--green);font-weight:700;}
+.closed-mark{color:#E74C3C;font-weight:700;}
+.loading{position:fixed;inset:0;background:rgba(255,255,255,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;display:none;}
+.spin{width:40px;height:40px;border:3px solid #eee;border-top-color:var(--green);border-radius:50%;animation:sp 0.8s linear infinite;margin-bottom:12px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header" id="appHeader">
-  <div class="header-back" id="backBtn" onclick="goBack()" style="display:none">‹</div>
-  <div class="header-logo">🦷</div>
+<div class="hdr" id="hdr">
+  <div class="hdr-back" id="backBtn" onclick="goBack()">&#x2039;</div>
+  <div class="hdr-logo">&#x1F9B7;</div>
   <div>
-    <div class="header-title" id="headerTitle">東山通歯科クリニック</div>
-    <div class="header-subtitle" id="headerSub">ご用件をお選びください</div>
+    <div class="hdr-title" id="hdrTitle">東山通歯科クリニック</div>
+    <div class="hdr-sub" id="hdrSub">ご用件をお選びください</div>
   </div>
 </div>
 
-<!-- LOADING -->
-<div class="loading-wrap" id="loadingWrap" style="display:none">
-  <div class="spinner"></div>
-  <p>送信中…</p>
+<div class="loading" id="loading">
+  <div class="spin"></div>
+  <p style="font-size:14px;color:#888">送信中…</p>
 </div>
 
-<!-- ================================================================
-     SCREEN 1: メインメニュー
-     ================================================================ -->
-<div class="screen active" id="screen-main">
-  <div class="menu-header">
+<div class="scr on" id="s-main">
+  <div class="menu-hd">
     <h2>何をお手伝いしますか？</h2>
     <p>メニューをタップしてください</p>
   </div>
-  <div class="menu-grid">
-    <div class="menu-card green" onclick="showScreen('screen-reserve')">
-      <div class="menu-icon">📅</div>
-      <div class="menu-label">予約する</div>
-      <div class="menu-sub">新規・再診</div>
+  <div class="grid">
+    <div class="card green" onclick="go('s-reserve')">
+      <div class="card-icon">&#x1F4C5;</div>
+      <div class="card-lbl">予約する</div>
+      <div class="card-sub">新規・再診</div>
     </div>
-    <div class="menu-card blue" onclick="showScreen('screen-myreserve')">
-      <div class="menu-icon">🕐</div>
-      <div class="menu-label">予約確認</div>
-      <div class="menu-sub">変更・キャンセル</div>
+    <div class="card blue" onclick="go('s-myreserve')">
+      <div class="card-icon">&#x1F550;</div>
+      <div class="card-lbl">予約確認</div>
+      <div class="card-sub">変更・キャンセル</div>
     </div>
-    <div class="menu-card orange" onclick="showScreen('screen-hours')">
-      <div class="menu-icon">🏠</div>
-      <div class="menu-label">診療時間</div>
-      <div class="menu-sub">休診日・アクセス</div>
+    <div class="card orange" onclick="go('s-hours')">
+      <div class="card-icon">&#x1F3E0;</div>
+      <div class="card-lbl">診療時間</div>
+      <div class="card-sub">休診日・アクセス</div>
     </div>
-    <div class="menu-card gold" onclick="showScreen('screen-treatments')">
-      <div class="menu-icon">🗒️</div>
-      <div class="menu-label">診療メニュー</div>
-      <div class="menu-sub">料金・内容</div>
+    <div class="card gold" onclick="go('s-treatments')">
+      <div class="card-icon">&#x1F5D2;</div>
+      <div class="card-lbl">診療メニュー</div>
+      <div class="card-sub">料金・内容</div>
     </div>
-    <div class="menu-card purple" onclick="showScreen('screen-contact')">
-      <div class="menu-icon">💬</div>
-      <div class="menu-label">お問い合わせ</div>
-      <div class="menu-sub">電話・LINE</div>
+    <div class="card purple" onclick="go('s-contact')">
+      <div class="card-icon">&#x1F4AC;</div>
+      <div class="card-lbl">お問い合わせ</div>
+      <div class="card-sub">電話・LINE</div>
     </div>
-    <div class="menu-card teal" onclick="showScreen('screen-questionnaire')">
-      <div class="menu-icon">📋</div>
-      <div class="menu-label">初診問診票</div>
-      <div class="menu-sub">事前にご記入</div>
+    <div class="card teal" onclick="go('s-q')">
+      <div class="card-icon">&#x1F4CB;</div>
+      <div class="card-lbl">初診問診票</div>
+      <div class="card-sub">事前にご記入</div>
     </div>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN 2: 予約する → 治療メニュー選択
-     ================================================================ -->
-<div class="screen" id="screen-reserve">
-  <div class="section-title">診療メニューを選択</div>
-  <div class="treat-list" id="treatList">
-    <!-- JS で生成 -->
-  </div>
+<div class="scr" id="s-reserve">
+  <div class="sec-ttl">診療メニューを選択</div>
+  <div class="treat-list" id="treatList"></div>
 </div>
 
-<!-- ================================================================
-     SCREEN 3: カレンダー（日付選択）
-     ================================================================ -->
-<div class="screen" id="screen-calendar">
-  <div class="cal-wrapper">
-    <div class="cal-header">
-      <div class="cal-nav" onclick="changeMonth(-1)">‹</div>
-      <div class="cal-month" id="calMonthLabel"></div>
-      <div class="cal-nav" onclick="changeMonth(1)">›</div>
+<div class="scr" id="s-cal">
+  <div class="cal-wrap">
+    <div class="cal-hd">
+      <div class="cal-nav" onclick="chMonth(-1)">&#x2039;</div>
+      <div class="cal-month" id="calLabel"></div>
+      <div class="cal-nav" onclick="chMonth(1)">&#x203A;</div>
     </div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
   <div class="btn-wrap" style="padding-top:0">
-    <button class="btn-primary" id="calNextBtn" onclick="goToTimeSelect()" disabled>
-      この日を選ぶ
-    </button>
+    <button class="btn primary" id="calBtn" onclick="goTime()" disabled>この日を選ぶ</button>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN 4: 時間スロット選択
-     ================================================================ -->
-<div class="screen" id="screen-time">
-  <div class="info-card" style="margin:12px 16px 0; padding:12px 16px; background:var(--green-bg);">
-    <p style="font-size:13px; color:var(--green); font-weight:600;" id="timeSelectedDateLabel"></p>
+<div class="scr" id="s-time">
+  <div class="info-box grn-box" style="margin:12px 14px 0">
+    <p id="timeDateLbl" style="font-size:13px;color:var(--green);font-weight:600;"></p>
   </div>
-  <div class="time-section" id="timeSection">
-    <!-- JS で生成 -->
-  </div>
+  <div class="time-wrap" id="timeWrap"></div>
   <div class="btn-wrap" style="padding-top:0">
-    <button class="btn-primary" id="timeNextBtn" onclick="goToForm()" disabled>
-      この時間で進む
-    </button>
+    <button class="btn primary" id="timeBtn" onclick="goForm()" disabled>この時間で進む</button>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN 5: 患者情報入力
-     ================================================================ -->
-<div class="screen" id="screen-form">
-  <div class="form-section">
-    <div class="info-card" style="margin:4px 0 10px; padding:12px 16px; background:var(--green-bg);">
-      <p style="font-size:13px; color:var(--green); font-weight:600;" id="formSummaryLabel"></p>
+<div class="scr" id="s-form">
+  <div class="form-wrap">
+    <div class="info-box grn-box"><p id="formLbl" style="font-size:13px;color:var(--green);font-weight:600;"></p></div>
+    <div class="info-box ylw-box" id="prefillNote" style="display:none;margin-top:8px;">
+      <p style="font-size:12px;color:#7B6000;">以前のご登録情報を自動入力しました。変更がある場合は修正してください。</p>
     </div>
-    <!-- 過去データ自動入力バナー -->
-    <div id="prefillBanner" style="display:none; margin:0 0 14px; padding:11px 14px; background:#FFF8E1; border-radius:10px; border-left:4px solid #FFC107;">
-      <p style="font-size:12px; color:#7B6000;">⚡ 以前ご登録の情報を自動入力しました。変更がある場合は修正してください。</p>
+    <div class="form-group" style="margin-top:14px;">
+      <label class="form-lbl">お名前（フルネーム）<span>*</span></label>
+      <input type="text" class="form-inp" id="inpName" placeholder="例：山田 太郎" oninput="checkForm()">
     </div>
     <div class="form-group">
-      <label class="form-label">お名前（フルネーム）<span>*</span></label>
-      <input type="text" class="form-input" id="inputName" placeholder="例：山田 太郎"
-             oninput="checkFormValid()">
-      <div class="form-hint">スペースを入れてご入力ください</div>
+      <label class="form-lbl">お電話番号<span>*</span></label>
+      <input type="tel" class="form-inp" id="inpPhone" placeholder="例：090-1234-5678" oninput="checkForm()">
     </div>
     <div class="form-group">
-      <label class="form-label">お電話番号<span>*</span></label>
-      <input type="tel" class="form-input" id="inputPhone" placeholder="例：090-1234-5678"
-             oninput="checkFormValid()">
-    </div>
-    <div class="form-group">
-      <label class="form-label">初診・再診</label>
-      <div class="radio-group" style="margin-top:4px">
-        <div class="radio-btn selected" id="rb-new" onclick="selectVisitType('new')">初診</div>
-        <div class="radio-btn" id="rb-return" onclick="selectVisitType('return')">再診</div>
+      <label class="form-lbl">初診・再診</label>
+      <div class="radio-row">
+        <div class="rb sel" id="rb-new" onclick="setVisit('new')">初診</div>
+        <div class="rb" id="rb-ret" onclick="setVisit('return')">再診</div>
       </div>
     </div>
-    <button class="btn-primary" id="formNextBtn" onclick="goToConfirm()" disabled>
-      内容を確認する
-    </button>
+    <button class="btn primary" id="formBtn" onclick="goConfirm()" disabled>内容を確認する</button>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN 6: 予約確認
-     ================================================================ -->
-<div class="screen" id="screen-confirm">
-  <div class="confirm-card">
-    <div class="confirm-card-header">予約内容のご確認</div>
-    <div class="confirm-row">
-      <div class="confirm-icon">🦷</div>
-      <div>
-        <div class="confirm-key">診療メニュー</div>
-        <div class="confirm-val" id="cf-menu"></div>
-      </div>
-    </div>
-    <div class="confirm-row">
-      <div class="confirm-icon">📅</div>
-      <div>
-        <div class="confirm-key">日時</div>
-        <div class="confirm-val" id="cf-datetime"></div>
-      </div>
-    </div>
-    <div class="confirm-row">
-      <div class="confirm-icon">👤</div>
-      <div>
-        <div class="confirm-key">お名前</div>
-        <div class="confirm-val" id="cf-name"></div>
-      </div>
-    </div>
-    <div class="confirm-row">
-      <div class="confirm-icon">📞</div>
-      <div>
-        <div class="confirm-key">お電話番号</div>
-        <div class="confirm-val" id="cf-phone"></div>
-      </div>
-    </div>
-    <div class="confirm-row">
-      <div class="confirm-icon">🏥</div>
-      <div>
-        <div class="confirm-key">受診区分</div>
-        <div class="confirm-val" id="cf-visit"></div>
-      </div>
-    </div>
+<div class="scr" id="s-confirm">
+  <div class="conf-card">
+    <div class="conf-hd">予約内容のご確認</div>
+    <div class="conf-row"><div class="conf-ic">&#x1F9B7;</div><div><div class="conf-key">診療メニュー</div><div class="conf-val" id="cf-menu"></div></div></div>
+    <div class="conf-row"><div class="conf-ic">&#x1F4C5;</div><div><div class="conf-key">日時</div><div class="conf-val" id="cf-dt"></div></div></div>
+    <div class="conf-row"><div class="conf-ic">&#x1F464;</div><div><div class="conf-key">お名前</div><div class="conf-val" id="cf-name"></div></div></div>
+    <div class="conf-row"><div class="conf-ic">&#x1F4DE;</div><div><div class="conf-key">お電話番号</div><div class="conf-val" id="cf-phone"></div></div></div>
+    <div class="conf-row"><div class="conf-ic">&#x1F3E5;</div><div><div class="conf-key">受診区分</div><div class="conf-val" id="cf-visit"></div></div></div>
   </div>
   <div class="btn-wrap">
-    <button class="btn-primary" onclick="submitReservation()">予約を確定する</button>
-    <button class="btn-secondary" onclick="showScreen('screen-form')">修正する</button>
+    <button class="btn primary" onclick="submitRes()">予約を確定する</button>
+    <button class="btn secondary" onclick="go('s-form')">修正する</button>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN 7: 予約完了
-     ================================================================ -->
-<div class="screen" id="screen-success">
-  <div class="success-wrap">
-    <div class="success-icon">✅</div>
-    <div class="success-title">予約が完了しました</div>
-    <div class="success-sub" id="successDetail"></div>
-    <div style="margin-top:32px">
-      <button class="btn-primary" onclick="closeApp()">LINEに戻る</button>
-      <button class="btn-secondary" onclick="goHome()">トップに戻る</button>
+<div class="scr" id="s-done">
+  <div class="suc-wrap">
+    <div class="suc-ic">&#x2705;</div>
+    <div class="suc-ttl">予約が完了しました</div>
+    <div class="suc-sub" id="doneDetail"></div>
+    <div style="margin-top:28px">
+      <button class="btn primary" onclick="tryClose()">LINEに戻る</button>
+      <button class="btn secondary" onclick="goHome()">トップに戻る</button>
     </div>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN: 予約確認（自分の予約）
-     ================================================================ -->
-<div class="screen" id="screen-myreserve">
-  <div class="section-title">ご予約の確認</div>
-  <div class="info-card" id="myReserveContent">
-    <p style="color:#888; text-align:center; padding:20px 0; font-size:14px;">読み込み中…</p>
+<div class="scr" id="s-myreserve">
+  <div class="sec-ttl">ご予約の確認</div>
+  <div class="info-card">
+    <h3>直近のご予約</h3>
+    <p style="margin-top:8px;color:#888;font-size:13px;">LINEチャットにて予約内容をご確認ください。変更・キャンセルもチャットからお申し付けください。</p>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN: 診療時間
-     ================================================================ -->
-<div class="screen" id="screen-hours">
-  <div class="section-title">診療時間</div>
+<div class="scr" id="s-hours">
+  <div class="sec-ttl">診療時間</div>
   <div class="info-card">
-    <h3>📅 診療日・診療時間</h3>
-    <table class="hours-table">
-      <thead>
-        <tr>
-          <th>曜日</th>
-          <th>午前</th>
-          <th>午後</th>
-        </tr>
-      </thead>
+    <h3>&#x1F4C5; 診療日・診療時間</h3>
+    <table class="hrs-tbl">
+      <thead><tr><th>曜日</th><th>午前</th><th>午後</th></tr></thead>
       <tbody>
         <tr><td>月曜日</td><td class="open-mark">9:00〜13:00</td><td class="open-mark">14:30〜18:30</td></tr>
         <tr><td>火曜日</td><td class="open-mark">9:00〜13:00</td><td class="open-mark">14:30〜18:30</td></tr>
@@ -604,555 +270,198 @@
         <tr><td style="color:#E74C3C">木曜日</td><td class="closed-mark">休診</td><td class="closed-mark">休診</td></tr>
         <tr><td>金曜日</td><td class="open-mark">9:00〜13:00</td><td class="open-mark">14:30〜18:30</td></tr>
         <tr><td style="color:#2980B9">土曜日</td><td class="open-mark">9:00〜13:00</td><td class="open-mark">14:00〜17:00</td></tr>
-        <tr><td style="color:#E74C3C">日曜・祝日</td><td class="closed-mark">休診</td><td class="closed-mark">休診</td></tr>
+        <tr><td style="color:#E74C3C">日・祝日</td><td class="closed-mark">休診</td><td class="closed-mark">休診</td></tr>
       </tbody>
     </table>
   </div>
+  <div class="info-card"><h3>&#x1F4CD; アクセス</h3><p>愛知県名古屋市千種区内山3丁目XX-XX<br>&#x1F687; 地下鉄東山線「千種駅」2番出口 徒歩2分</p></div>
+</div>
+
+<div class="scr" id="s-treatments">
+  <div class="sec-ttl">診療メニュー・料金</div>
   <div class="info-card">
-    <h3>📍 アクセス</h3>
-    <p>〒464-0075<br>愛知県名古屋市千種区内山3丁目XX-XX<br><br>
-    🚇 地下鉄東山線「千種駅」2番出口 徒歩2分<br>
-    🚌 バス停「東山通」すぐ</p>
-  </div>
-  <div class="btn-wrap">
-    <button class="btn-primary orange" onclick="openMap()">📍 地図を開く</button>
+    <h3>&#x1F9B7; 保険診療</h3>
+    <div style="margin-top:8px">
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F0F3F5"><div><div style="font-size:14px;font-weight:600">初診</div><div style="font-size:12px;color:#888">60分</div></div><div style="color:var(--green);font-weight:700;font-size:13px">保険適用</div></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F0F3F5"><div><div style="font-size:14px;font-weight:600">再診</div><div style="font-size:12px;color:#888">30分</div></div><div style="color:var(--green);font-weight:700;font-size:13px">保険適用</div></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F0F3F5"><div><div style="font-size:14px;font-weight:600">クリーニング</div><div style="font-size:12px;color:#888">45分</div></div><div style="color:var(--green);font-weight:700;font-size:13px">保険適用</div></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0"><div><div style="font-size:14px;font-weight:600">定期検診・歯石除去</div><div style="font-size:12px;color:#888">45分</div></div><div style="color:var(--green);font-weight:700;font-size:13px">保険適用</div></div>
+    </div>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN: 診療メニュー・料金
-     ================================================================ -->
-<div class="screen" id="screen-treatments">
-  <div class="section-title">診療メニュー・料金</div>
-  <div class="info-card">
-    <h3>🦷 保険診療</h3>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">初診</div><div class="tp-dur">60分</div></div>
-      <div class="tp-price">保険適用</div>
-    </div>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">再診</div><div class="tp-dur">30分</div></div>
-      <div class="tp-price">保険適用</div>
-    </div>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">クリーニング</div><div class="tp-dur">45分</div></div>
-      <div class="tp-price">保険適用</div>
-    </div>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">定期検診</div><div class="tp-dur">45分</div></div>
-      <div class="tp-price">保険適用</div>
-    </div>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">歯石除去</div><div class="tp-dur">45分</div></div>
-      <div class="tp-price">保険適用</div>
-    </div>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">根管治療</div><div class="tp-dur">60分</div></div>
-      <div class="tp-price">保険適用</div>
-    </div>
-  </div>
-  <div class="info-card">
-    <h3>✨ 自由診療</h3>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">ホワイトニング（オフィス）</div><div class="tp-dur">60分</div></div>
-      <div class="tp-price">¥18,000〜</div>
-    </div>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">セラミックインレー</div><div class="tp-dur">−</div></div>
-      <div class="tp-price">¥55,000〜</div>
-    </div>
-    <div class="treatment-price-item">
-      <div><div class="tp-name">インプラント</div><div class="tp-dur">−</div></div>
-      <div class="tp-price">¥330,000〜</div>
-    </div>
-  </div>
-  <div style="padding:0 16px 30px">
-    <p style="font-size:11px; color:#aaa; text-align:center">※料金は税込み。保険診療は自己負担額が異なります。<br>詳細はお気軽にお問い合わせください。</p>
-  </div>
-</div>
-
-<!-- ================================================================
-     SCREEN: お問い合わせ
-     ================================================================ -->
-<div class="screen" id="screen-contact">
-  <div class="section-title">お問い合わせ</div>
-  <a class="contact-btn" href="tel:052-XXX-XXXX">
-    <div class="contact-btn-icon" style="background:#FEE0E0">📞</div>
-    <div>
-      <div class="contact-btn-label">お電話でのお問い合わせ</div>
-      <div class="contact-btn-sub">052-XXX-XXXX（受付時間内）</div>
-    </div>
+<div class="scr" id="s-contact">
+  <div class="sec-ttl">お問い合わせ</div>
+  <a class="info-card" href="tel:052-XXX-XXXX" style="display:flex;align-items:center;gap:14px;text-decoration:none;cursor:pointer;margin:10px 14px;">
+    <div style="width:46px;height:46px;border-radius:12px;background:#FEE0E0;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">&#x1F4DE;</div>
+    <div><div style="font-size:15px;font-weight:700;color:#1a1a1a;">お電話でのお問い合わせ</div><div style="font-size:12px;color:#888;margin-top:2px;">052-XXX-XXXX</div></div>
   </a>
-  <div class="contact-btn" onclick="openLine()">
-    <div class="contact-btn-icon" style="background:#E8F8EE">💬</div>
-    <div>
-      <div class="contact-btn-label">LINEでのお問い合わせ</div>
-      <div class="contact-btn-sub">チャットでお気軽にどうぞ</div>
+</div>
+
+<div class="scr" id="s-q">
+  <div class="form-wrap">
+    <div class="sec-ttl" style="padding:0 0 12px">初診問診票</div>
+    <div class="form-group">
+      <label class="form-lbl">1. 本日のご相談内容</label>
+      <textarea class="form-inp" rows="3" id="q1" placeholder="例：右下の奥歯が痛い" style="resize:none;"></textarea>
     </div>
-  </div>
-  <div class="info-card" style="margin-top:4px">
-    <h3>📩 受付時間</h3>
-    <p>月〜土 9:00〜18:30（木・日・祝は除く）<br>お返事まで少々お時間をいただく場合があります。</p>
+    <div class="form-group">
+      <label class="form-lbl">2. 現在、痛みはありますか？</label>
+      <div class="radio-row">
+        <div class="rb" id="q2y" onclick="setQ('q2','yes','q2y','q2n')">はい</div>
+        <div class="rb" id="q2n" onclick="setQ('q2','no','q2y','q2n')">いいえ</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-lbl">3. 服用中のお薬はありますか？</label>
+      <div class="radio-row">
+        <div class="rb" id="q3y" onclick="setQ('q3','yes','q3y','q3n')">あり</div>
+        <div class="rb" id="q3n" onclick="setQ('q3','no','q3y','q3n')">なし</div>
+      </div>
+    </div>
+    <button class="btn teal" onclick="go('s-qdone')">問診票を送信する</button>
   </div>
 </div>
 
-<!-- ================================================================
-     SCREEN: 初診問診票
-     ================================================================ -->
-<div class="screen" id="screen-questionnaire">
-  <div class="section-title" style="color:var(--teal)">初診問診票 <span class="badge" style="background:var(--teal)">事前入力OK</span></div>
-
-  <div class="questionnaire-q">
-    <div class="q-label">1. 本日のご相談内容</div>
-    <textarea class="q-textarea" rows="3" placeholder="例：右下の奥歯が痛い、虫歯の治療、定期検診など" id="q1"></textarea>
-  </div>
-
-  <div class="questionnaire-q">
-    <div class="q-label">2. 現在、痛みはありますか？</div>
-    <div class="radio-group">
-      <div class="radio-btn" id="q2-yes" onclick="selectQ('q2','yes')">はい</div>
-      <div class="radio-btn" id="q2-no" onclick="selectQ('q2','no')">いいえ</div>
-    </div>
-  </div>
-
-  <div class="questionnaire-q">
-    <div class="q-label">3. 現在、服用中のお薬はありますか？</div>
-    <div class="radio-group">
-      <div class="radio-btn" id="q3-yes" onclick="selectQ('q3','yes')">あり</div>
-      <div class="radio-btn" id="q3-no" onclick="selectQ('q3','no')">なし</div>
-    </div>
-  </div>
-
-  <div class="questionnaire-q">
-    <div class="q-label">4. アレルギーはありますか？（薬・金属など）</div>
-    <textarea class="q-textarea" rows="2" placeholder="特になし、または具体的な内容をご記入ください" id="q4"></textarea>
-  </div>
-
-  <div class="questionnaire-q">
-    <div class="q-label">5. 持病・既往歴はありますか？</div>
-    <textarea class="q-textarea" rows="2" placeholder="特になし、または具体的な内容をご記入ください" id="q5"></textarea>
-  </div>
-
-  <div class="btn-wrap">
-    <button class="btn-primary teal" onclick="submitQuestionnaire()">問診票を送信する</button>
-  </div>
-</div>
-
-<!-- ================================================================
-     SCREEN: 問診票 完了
-     ================================================================ -->
-<div class="screen" id="screen-q-success">
-  <div class="success-wrap">
-    <div class="success-icon">📋</div>
-    <div class="success-title">問診票を受け付けました</div>
-    <div class="success-sub">ありがとうございます。<br>当日の診療がスムーズになります。<br><br>診察当日は受付でその旨をお伝えください。</div>
-    <div style="margin-top:32px">
-      <button class="btn-primary teal" onclick="closeApp()">LINEに戻る</button>
-      <button class="btn-secondary" onclick="goHome()">トップに戻る</button>
+<div class="scr" id="s-qdone">
+  <div class="suc-wrap">
+    <div class="suc-ic">&#x1F4CB;</div>
+    <div class="suc-ttl">問診票を受け付けました</div>
+    <div class="suc-sub">ありがとうございます。当日の診療がスムーズになります。</div>
+    <div style="margin-top:28px">
+      <button class="btn teal" onclick="tryClose()">LINEに戻る</button>
+      <button class="btn secondary" onclick="goHome()">トップに戻る</button>
     </div>
   </div>
 </div>
 
 <script>
-// ================================================================
-// 設定・定数
-// ================================================================
-const LIFF_ID = '2009464732-qWm8INt4';
-const N8N_WEBHOOK = 'https://YOUR_N8N_HOST/webhook/liff-reservation'; // ← n8nのWebhook URL
-
-// 診療メニュー（n8nのmenu_masterと同期）
-const MENUS = [
-  { code: 'M01', name: '初診',     duration: 60, icon: '🆕' },
-  { code: 'M02', name: '再診',     duration: 30, icon: '🔄' },
-  { code: 'M03', name: 'クリーニング', duration: 45, icon: '✨' },
-  { code: 'M04', name: '定期検診', duration: 45, icon: '🔍' },
-  { code: 'M05', name: '歯石除去', duration: 45, icon: '🦷' },
-  { code: 'M06', name: '根管治療', duration: 60, icon: '💊' },
+var LIFF_ID = '2009464732-qWm8INt4';
+var MENUS = [
+  {code:'M01',name:'初診',dur:60,icon:'&#x1F195;'},
+  {code:'M02',name:'再診',dur:30,icon:'&#x1F504;'},
+  {code:'M03',name:'クリーニング',dur:45,icon:'&#x2728;'},
+  {code:'M04',name:'定期検診',dur:45,icon:'&#x1F50D;'},
+  {code:'M05',name:'歯石除去',dur:45,icon:'&#x1F9B7;'},
+  {code:'M06',name:'根管治療',dur:60,icon:'&#x1F48A;'}
 ];
+var SWD={am:['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'],pm:['14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00']};
+var SST={am:['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'],pm:['14:00','14:30','15:00','15:30','16:00','16:30']};
+var JP=['日','月','火','水','木','金','土'];
+var S={menu:null,date:null,time:null,name:'',phone:'',visit:'new',hist:['s-main'],calY:0,calM:0,qa:{}};
 
-// 休診日判定（木曜=4, 日曜=0）
-function isClosedDay(date) {
-  const d = date.getDay();
-  return d === 0 || d === 4;
+function go(id){
+  document.querySelectorAll('.scr').forEach(function(e){e.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  if(S.hist[S.hist.length-1]\!==id) S.hist.push(id);
+  updateHdr(id);
+  if(id==='s-reserve') buildTreat();
+  if(id==='s-cal') initCal();
+}
+function goBack(){
+  if(S.hist.length>1){S.hist.pop();var p=S.hist[S.hist.length-1];document.querySelectorAll('.scr').forEach(function(e){e.classList.remove('on');});document.getElementById(p).classList.add('on');updateHdr(p);}
+}
+function goHome(){S.hist=['s-main'];go('s-main');}
+function updateHdr(id){
+  var m={'s-main':['東山通歯科クリニック','ご用件をお選びください'],'s-reserve':['予約する','診療メニューを選択'],'s-cal':['日程を選ぶ','希望日をタップ'],'s-time':['時間を選ぶ','希望時間をタップ'],'s-form':['お客様情報','必要事項をご入力ください'],'s-confirm':['予約確認','内容をご確認ください'],'s-done':['予約完了',''],'s-myreserve':['予約確認','変更・キャンセル'],'s-hours':['診療時間','休診日・アクセス'],'s-treatments':['診療メニュー','料金・内容'],'s-contact':['お問い合わせ','電話・LINE'],'s-q':['初診問診票','事前にご記入ください'],'s-qdone':['送信完了','']};
+  var t=m[id]||['東山通歯科クリニック',''];
+  document.getElementById('hdrTitle').textContent=t[0];
+  document.getElementById('hdrSub').textContent=t[1];
+  document.getElementById('backBtn').style.display=(id==='s-main')?'none':'block';
 }
 
-// 時間スロット設定
-const SLOTS_WEEKDAY = {
-  am: ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'],
-  pm: ['14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00']
-};
-const SLOTS_SAT = {
-  am: ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'],
-  pm: ['14:00','14:30','15:00','15:30','16:00','16:30']
-};
-
-// ================================================================
-// State
-// ================================================================
-let state = {
-  selectedMenu:   null,
-  selectedDate:   null,
-  selectedTime:   null,
-  patientName:    '',
-  phone:          '',
-  visitType:      'new',
-  lineUserId:     null,
-  screenHistory:  ['screen-main'],
-  calYear:        0,
-  calMonth:       0,
-  qAnswers:       {}
-};
-
-// ================================================================
-// LIFF 初期化（送信時のみ呼び出す）
-// ================================================================
-let liffReady = false;
-async function ensureLiff() {
-  if (liffReady) return;
-  try {
-    await liff.init({ liffId: LIFF_ID });
-    liffReady = true;
-  } catch(e) {
-    console.warn('LIFF init error:', e.message);
+function buildTreat(){
+  var h='';
+  for(var i=0;i<MENUS.length;i++){
+    var m=MENUS[i];
+    h+='<div class="treat" onclick="pickMenu('+i+')"><div class="treat-dot">'+m.icon+'</div><div><div class="treat-name">'+m.name+'</div><div class="treat-dur">所要時間：約'+m.dur+'分</div></div><div class="treat-arr">&#x203A;</div></div>';
   }
+  document.getElementById('treatList').innerHTML=h;
 }
+function pickMenu(i){S.menu=MENUS[i];go('s-cal');}
 
-// ================================================================
-// 画面遷移
-// ================================================================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-
-  if (state.screenHistory[state.screenHistory.length - 1] !== id) {
-    state.screenHistory.push(id);
+function isOff(d){var w=d.getDay();return w===0||w===4;}
+function initCal(){var n=new Date();S.calY=n.getFullYear();S.calM=n.getMonth();S.date=null;document.getElementById('calBtn').disabled=true;drawCal();}
+function chMonth(d){S.calM+=d;if(S.calM>11){S.calM=0;S.calY++;}if(S.calM<0){S.calM=11;S.calY--;}S.date=null;document.getElementById('calBtn').disabled=true;drawCal();}
+function drawCal(){
+  var y=S.calY,m=S.calM;
+  document.getElementById('calLabel').textContent=y+'年'+(m+1)+'月';
+  var first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+  var today=new Date();today.setHours(0,0,0,0);
+  var h='';
+  for(var i=0;i<7;i++) h+='<div class="cal-dn">'+JP[i]+'</div>';
+  for(var i=0;i<first;i++) h+='<div class="cal-d empty"></div>';
+  for(var d=1;d<=days;d++){
+    var dt=new Date(y,m,d);
+    var ds=y+'-'+('0'+(m+1)).slice(-2)+'-'+('0'+d).slice(-2);
+    var w=dt.getDay();
+    var off=isOff(dt)||dt<today;
+    var cls='cal-d'+(off?' closed':'')+((\!off&&w===0)?' sun':'')+((\!off&&w===6)?' sat':'')+(S.date===ds?' sel':'');
+    var cl=off?'':' onclick="pickDate(\''+ds+'\')"';
+    h+='<div class="'+cls+'"'+cl+'>'+d+'</div>';
   }
-
-  // ヘッダー設定
-  const titles = {
-    'screen-main':          ['東山通歯科クリニック', 'ご用件をお選びください'],
-    'screen-reserve':       ['予約する',        '診療メニューを選択'],
-    'screen-calendar':      ['日程を選ぶ',       '希望日をタップ'],
-    'screen-time':          ['時間を選ぶ',       '希望時間をタップ'],
-    'screen-form':          ['お客様情報',       '必要事項をご入力ください'],
-    'screen-confirm':       ['予約確認',         '内容をご確認ください'],
-    'screen-success':       ['予約完了',         ''],
-    'screen-myreserve':     ['予約確認',         '変更・キャンセル'],
-    'screen-hours':         ['診療時間',         '休診日・アクセス'],
-    'screen-treatments':    ['診療メニュー',     '料金・内容'],
-    'screen-contact':       ['お問い合わせ',     '電話・LINE'],
-    'screen-questionnaire': ['初診問診票',       '事前にご記入ください'],
-    'screen-q-success':     ['送信完了',         ''],
-  };
-  const t = titles[id] || ['東山通歯科クリニック',''];
-  document.getElementById('headerTitle').textContent = t[0];
-  document.getElementById('headerSub').textContent  = t[1];
-  document.getElementById('backBtn').style.display  = (id === 'screen-main') ? 'none' : 'block';
-
-  // 画面固有の初期化
-  if (id === 'screen-reserve')       buildTreatList();
-  if (id === 'screen-calendar')      initCalendar();
-  if (id === 'screen-myreserve')     loadMyReservation();
+  document.getElementById('calGrid').innerHTML=h;
 }
+function pickDate(ds){S.date=ds;drawCal();document.getElementById('calBtn').disabled=false;}
+function goTime(){if(\!S.date)return;go('s-time');drawSlots();}
 
-function goBack() {
-  if (state.screenHistory.length > 1) {
-    state.screenHistory.pop();
-    const prev = state.screenHistory[state.screenHistory.length - 1];
-    showScreen(prev);
-    state.screenHistory.pop(); // showScreen が push するので調整
-    state.screenHistory.push(prev);
+function drawSlots(){
+  var dt=new Date(S.date+'T00:00:00');
+  document.getElementById('timeDateLbl').textContent='日程: '+S.date+'('+JP[dt.getDay()]+'曜)';
+  var sl=dt.getDay()===6?SST:SWD;
+  var h='';
+  for(var p in sl){
+    h+='<div class="time-period">'+(p==='am'?'午前':'午後')+'</div><div class="time-grid">';
+    for(var i=0;i<sl[p].length;i++){var t=sl[p][i];h+='<div class="slot'+(S.time===t?' sel':'')+'" onclick="pickTime(\''+t+'\')">'+t+'</div>';}
+    h+='</div>';
   }
+  document.getElementById('timeWrap').innerHTML=h;
+  document.getElementById('timeBtn').disabled=\!S.time;
 }
-
-function goHome() {
-  state.screenHistory = ['screen-main'];
-  showScreen('screen-main');
+function pickTime(t){S.time=t;drawSlots();document.getElementById('timeBtn').disabled=false;}
+function goForm(){
+  var dt=new Date(S.date+'T00:00:00');
+  document.getElementById('formLbl').textContent=S.menu.name+' | '+S.date+'('+JP[dt.getDay()]+'曜) '+S.time+'〜';
+  var p=new URLSearchParams(location.search);
+  var pn=p.get('name'),pp=p.get('phone');
+  if(pn&&\!document.getElementById('inpName').value) document.getElementById('inpName').value=pn;
+  if(pp&&\!document.getElementById('inpPhone').value) document.getElementById('inpPhone').value=pp;
+  document.getElementById('prefillNote').style.display=(pn||pp)?'block':'none';
+  checkForm();
+  go('s-form');
 }
-
-function closeApp() {
-  try { liff.closeWindow(); } catch(e) { window.close(); }
+function setVisit(v){S.visit=v;document.getElementById('rb-new').className='rb'+(v==='new'?' sel':'');document.getElementById('rb-ret').className='rb'+(v==='return'?' sel':'');}
+function checkForm(){var n=document.getElementById('inpName').value.trim();var p=document.getElementById('inpPhone').value.replace(/[^\d]/g,'');document.getElementById('formBtn').disabled=\!(n.length>=2&&p.length>=10);}
+function goConfirm(){
+  S.name=document.getElementById('inpName').value.trim();S.phone=document.getElementById('inpPhone').value.trim();
+  var dt=new Date(S.date+'T00:00:00');
+  document.getElementById('cf-menu').textContent=S.menu.name;
+  document.getElementById('cf-dt').textContent=S.date+'('+JP[dt.getDay()]+'曜) '+S.time+'〜';
+  document.getElementById('cf-name').textContent=S.name+' 様';
+  document.getElementById('cf-phone').textContent=S.phone;
+  document.getElementById('cf-visit').textContent=S.visit==='new'?'初診':'再診';
+  go('s-confirm');
 }
-
-// ================================================================
-// 予約フロー
-// ================================================================
-
-// -- 治療メニュー一覧生成 --
-function buildTreatList() {
-  const icons = ['🆕','🔄','✨','🔍','🦷','💊'];
-  const list = document.getElementById('treatList');
-  list.innerHTML = MENUS.map((m, i) => `
-    <div class="treat-item" onclick="selectTreatment(MENUS[${i}])">
-      <div class="treat-dot">${m.icon || icons[i]}</div>
-      <div class="treat-info">
-        <div class="treat-name">${m.name}</div>
-        <div class="treat-dur">所要時間：約${m.duration}分</div>
-      </div>
-      <div class="treat-arrow">›</div>
-    </div>
-  `).join('');
-}
-
-function selectTreatment(menu) {
-  state.selectedMenu = menu;
-  showScreen('screen-calendar');
-}
-
-// -- カレンダー --
-function initCalendar() {
-  const now = new Date();
-  state.calYear  = now.getFullYear();
-  state.calMonth = now.getMonth();
-  state.selectedDate = null;
-  document.getElementById('calNextBtn').disabled = true;
-  renderCalendar();
-}
-
-function changeMonth(delta) {
-  state.calMonth += delta;
-  if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
-  if (state.calMonth < 0)  { state.calMonth = 11; state.calYear--; }
-  state.selectedDate = null;
-  document.getElementById('calNextBtn').disabled = true;
-  renderCalendar();
-}
-
-function renderCalendar() {
-  const y = state.calYear, m = state.calMonth;
-  document.getElementById('calMonthLabel').textContent = `${y}年${m+1}月`;
-
-  const first = new Date(y, m, 1).getDay();
-  const days  = new Date(y, m+1, 0).getDate();
-  const today = new Date();
-  today.setHours(0,0,0,0);
-
-  let html = ['日','月','火','水','木','金','土']
-    .map(d => `<div class="cal-day-name">${d}</div>`).join('');
-
-  for (let i = 0; i < first; i++) html += '<div class="cal-day empty"></div>';
-
-  for (let d = 1; d <= days; d++) {
-    const date = new Date(y, m, d);
-    const ds   = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dow  = date.getDay();
-    const past = date < today;
-    const closed = isClosedDay(date) || past;
-    const sel  = state.selectedDate === ds;
-    let cls = 'cal-day';
-    if (closed) cls += ' closed';
-    if (!closed && dow === 0) cls += ' sunday';
-    if (!closed && dow === 6) cls += ' saturday';
-    if (date.toDateString() === today.toDateString()) cls += ' today';
-    if (sel) cls += ' selected';
-    const click = closed ? '' : `onclick="selectDate('${ds}')"`;
-    html += `<div class="${cls}" ${click}>${d}</div>`;
+function submitRes(){
+  document.getElementById('loading').style.display='flex';
+  var msg='__LIFF_ALL_COMPLETE__|'+S.date+'|'+S.time+'|'+S.name+'|'+S.phone+'|'+S.menu.code+'|'+S.menu.name+'|'+S.visit;
+  var dt=new Date(S.date+'T00:00:00');
+  function done(){
+    document.getElementById('doneDetail').innerHTML=S.menu.name+'<br>'+S.date+'('+JP[dt.getDay()]+'曜) '+S.time+'〜<br><br>'+S.name+' 様、ご予約ありがとうございます。';
+    document.getElementById('loading').style.display='none';
+    go('s-done');
   }
-  document.getElementById('calGrid').innerHTML = html;
+  try{
+    if(typeof liff\!=='undefined'){
+      liff.init({liffId:LIFF_ID}).then(function(){
+        if(liff.isInClient()){liff.sendMessages([{type:'text',text:msg}]).then(done).catch(done);}
+        else{done();}
+      }).catch(done);
+    }else{done();}
+  }catch(e){done();}
 }
-
-function selectDate(ds) {
-  state.selectedDate = ds;
-  renderCalendar();
-  document.getElementById('calNextBtn').disabled = false;
-}
-
-function goToTimeSelect() {
-  if (!state.selectedDate) return;
-  showScreen('screen-time');
-  renderTimeSlots();
-}
-
-// -- 時間スロット --
-function renderTimeSlots() {
-  const date = new Date(state.selectedDate + 'T00:00:00');
-  const dow  = date.getDay();
-  const slots = dow === 6 ? SLOTS_SAT : SLOTS_WEEKDAY;
-  const jp = ['日','月','火','水','木','金','土'];
-  document.getElementById('timeSelectedDateLabel').textContent =
-    `📅 ${state.selectedDate}（${jp[dow]}）`;
-
-  let html = '';
-  for (const [period, label] of [['am','午前'], ['pm','午後']]) {
-    html += `<div class="time-period">${label}</div><div class="time-grid">`;
-    html += slots[period].map(t => `
-      <div class="time-slot${state.selectedTime === t ? ' selected' : ''}"
-           onclick="selectTime('${t}')">${t}</div>
-    `).join('');
-    html += '</div>';
-  }
-  document.getElementById('timeSection').innerHTML = html;
-  document.getElementById('timeNextBtn').disabled = !state.selectedTime;
-}
-
-function selectTime(t) {
-  state.selectedTime = t;
-  renderTimeSlots();
-  document.getElementById('timeNextBtn').disabled = false;
-}
-
-function goToForm() {
-  const jp = ['日','月','火','水','木','金','土'];
-  const date = new Date(state.selectedDate + 'T00:00:00');
-  document.getElementById('formSummaryLabel').textContent =
-    `🦷 ${state.selectedMenu.name}  📅 ${state.selectedDate}（${jp[date.getDay()]}）  🕐 ${state.selectedTime}〜`;
-
-  // URLパラメータから過去の登録データを自動入力
-  const params = new URLSearchParams(location.search);
-  const prefillName  = params.get('name');
-  const prefillPhone = params.get('phone');
-
-  if (prefillName && !document.getElementById('inputName').value) {
-    document.getElementById('inputName').value = prefillName;
-  }
-  if (prefillPhone && !document.getElementById('inputPhone').value) {
-    document.getElementById('inputPhone').value = prefillPhone;
-  }
-
-  // 過去データが入っていれば「以前の情報です」バナーを表示
-  const banner = document.getElementById('prefillBanner');
-  if (prefillName || prefillPhone) {
-    banner.style.display = 'block';
-  } else {
-    banner.style.display = 'none';
-  }
-
-  checkFormValid();
-  showScreen('screen-form');
-}
-
-// -- フォーム --
-function selectVisitType(v) {
-  state.visitType = v;
-  document.getElementById('rb-new').classList.toggle('selected', v === 'new');
-  document.getElementById('rb-return').classList.toggle('selected', v === 'return');
-}
-
-function checkFormValid() {
-  const name  = document.getElementById('inputName').value.trim();
-  const phone = document.getElementById('inputPhone').value.replace(/[^\d]/g,'');
-  document.getElementById('formNextBtn').disabled = !(name.length >= 2 && phone.length >= 10);
-}
-
-function goToConfirm() {
-  state.patientName = document.getElementById('inputName').value.trim();
-  state.phone       = document.getElementById('inputPhone').value.trim();
-  const jp = ['日','月','火','水','木','金','土'];
-  const date = new Date(state.selectedDate + 'T00:00:00');
-
-  document.getElementById('cf-menu').textContent     = state.selectedMenu.name;
-  document.getElementById('cf-datetime').textContent = `${state.selectedDate}（${jp[date.getDay()]}）${state.selectedTime}〜`;
-  document.getElementById('cf-name').textContent     = state.patientName + ' 様';
-  document.getElementById('cf-phone').textContent    = state.phone;
-  document.getElementById('cf-visit').textContent    = state.visitType === 'new' ? '初診' : '再診';
-  showScreen('screen-confirm');
-}
-
-// -- 予約送信 --
-async function submitReservation() {
-  document.getElementById('loadingWrap').style.display = 'flex';
-  const msg = `__LIFF_ALL_COMPLETE__|${state.selectedDate}|${state.selectedTime}|${state.patientName}|${state.phone}|${state.selectedMenu.name}|${state.visitType}`;
-
-  try {
-    // 送信時だけLIFF初期化
-    await ensureLiff();
-    if (typeof liff !== 'undefined' && liff.isInClient()) {
-      await liff.sendMessages([{ type: 'text', text: msg }]);
-    } else {
-      console.log('送信メッセージ:', msg);
-    }
-  } catch(e) {
-    console.warn('送信エラー:', e);
-  }
-
-  // 完了画面
-  const jp = ['日','月','火','水','木','金','土'];
-  const date = new Date(state.selectedDate + 'T00:00:00');
-  document.getElementById('successDetail').innerHTML =
-    `<strong>${state.selectedMenu.name}</strong><br>` +
-    `${state.selectedDate}（${jp[date.getDay()]}）${state.selectedTime}〜<br><br>` +
-    `${state.patientName} 様、ご予約ありがとうございます。<br>当日お気をつけてお越しください。`;
-
-  document.getElementById('loadingWrap').style.display = 'none';
-  showScreen('screen-success');
-}
-
-// ================================================================
-// 自分の予約確認
-// ================================================================
-async function loadMyReservation() {
-  // ※ LINEユーザーIDを使ってn8nから予約データを取得する想定
-  // 現在はデモ表示
-  setTimeout(() => {
-    document.getElementById('myReserveContent').innerHTML = `
-      <h3>直近のご予約</h3>
-      <div style="margin-top:12px; padding:14px; background:var(--green-bg); border-radius:10px;">
-        <p style="font-size:13px; color:var(--green); font-weight:600; margin-bottom:6px;">✅ 確定</p>
-        <p style="font-size:15px; font-weight:700; color:#1a1a1a; margin-bottom:4px;">再診</p>
-        <p style="font-size:14px; color:#555;">2026年5月2日（土）10:00〜</p>
-      </div>
-      <p style="margin-top:16px; font-size:13px; color:#888; text-align:center;">
-        変更・キャンセルはLINEチャットでご連絡ください
-      </p>
-    `;
-  }, 600);
-}
-
-// ================================================================
-// 問診票
-// ================================================================
-function selectQ(qid, val) {
-  state.qAnswers[qid] = val;
-  document.querySelectorAll(`[id^="${qid}-"]`).forEach(el => {
-    el.classList.toggle('selected', el.id === `${qid}-${val}`);
-  });
-}
-
-async function submitQuestionnaire() {
-  document.getElementById('loadingWrap').style.display = 'flex';
-  const answers = {
-    chief_complaint: document.getElementById('q1').value,
-    has_pain:        state.qAnswers['q2'] || '未回答',
-    taking_medicine: state.qAnswers['q3'] || '未回答',
-    allergy:         document.getElementById('q4').value,
-    medical_history: document.getElementById('q5').value,
-    line_user_id:    state.lineUserId
-  };
-  console.log('問診票送信:', answers);
-  // ※ ここでn8nのWebhookへPOSTする処理を追加
-  setTimeout(() => {
-    document.getElementById('loadingWrap').style.display = 'none';
-    showScreen('screen-q-success');
-  }, 800);
-}
-
-// ================================================================
-// その他
-// ================================================================
-function openMap() {
-  window.open('https://maps.google.com/?q=東山通歯科クリニック', '_blank');
-}
-
-function openLine() {
-  try { liff.closeWindow(); } catch(e) {}
-}
-
-function closeApp() {
-  try { liff.closeWindow(); } catch(e) { window.close(); }
-}
-
-// ================================================================
-// 起動 — シンプルにDOMContentLoadedのみ
-// ================================================================
-document.addEventListener('DOMContentLoaded', function() {
-  // URLパラメータ確認（treatment=指定の場合、直接そのメニューへ）
-  const params = new URLSearchParams(location.search);
-  const treatParam = params.get('treatment');
-  if (treatParam) {
-    const m = MENUS.find(menu => menu.name === treatParam);
-    if (m) selectTreatment(m);
-  }
-});
+function setQ(q,v,a,b){S.qa[q]=v;document.getElementById(a).className='rb'+(v==='yes'?' sel':'');document.getElementById(b).className='rb'+(v==='no'?' sel':'');}
+function tryClose(){try{liff.closeWindow();}catch(e){window.close();}}
 </script>
 </body>
 </html>
