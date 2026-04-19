@@ -377,7 +377,7 @@ function applyClinicInfo(){
   var tel=document.getElementById('clinicTelLink');if(tel) tel.href='tel:'+S.clinicTel;
   var td=document.getElementById('clinicTelDisp');if(td) td.textContent=S.clinicTel;
   var ad=document.getElementById('clinicAddressDisp');
-  if(ad) ad.innerHTML=S.clinicAddress+'<br>&#x1F687; '+S.clinicAccess;
+  if(ad) ad.innerHTML=S.clinicAddress+(S.clinicAccess?'<br>&#x1F687; '+S.clinicAccess:'');
 }
 
 function buildTreat(){
