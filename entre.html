@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>東山通歯科クリニック</title>
+<title id="pageTitle">東山通歯科クリニック</title>
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -275,7 +275,7 @@ body{font-family:-apple-system,'Hiragino Sans','Yu Gothic',sans-serif;background
       </tbody>
     </table>
   </div>
-  <div class="info-card"><h3>&#x1F4CD; アクセス</h3><p>愛知県名古屋市千種区内山3丁目XX-XX<br>&#x1F687; 地下鉄東山線「千種駅」2番出口 徒歩2分</p></div>
+  <div class="info-card"><h3>&#x1F4CD; アクセス</h3><p id="clinicAddressDisp">愛知県名古屋市千種区内山3丁目XX-XX<br>&#x1F687; 地下鉄東山線「千種駅」2番出口 徒歩2分</p></div>
 </div>
 
 <div class="scr" id="s-treatments">
@@ -293,9 +293,9 @@ body{font-family:-apple-system,'Hiragino Sans','Yu Gothic',sans-serif;background
 
 <div class="scr" id="s-contact">
   <div class="sec-ttl">お問い合わせ</div>
-  <a class="info-card" href="tel:052-XXX-XXXX" style="display:flex;align-items:center;gap:14px;text-decoration:none;cursor:pointer;margin:10px 14px;">
+  <a id="clinicTelLink" class="info-card" href="tel:052-XXX-XXXX" style="display:flex;align-items:center;gap:14px;text-decoration:none;cursor:pointer;margin:10px 14px;">
     <div style="width:46px;height:46px;border-radius:12px;background:#FEE0E0;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">&#x1F4DE;</div>
-    <div><div style="font-size:15px;font-weight:700;color:#1a1a1a;">お電話でのお問い合わせ</div><div style="font-size:12px;color:#888;margin-top:2px;">052-XXX-XXXX</div></div>
+    <div><div style="font-size:15px;font-weight:700;color:#1a1a1a;">お電話でのお問い合わせ</div><div id="clinicTelDisp" style="font-size:12px;color:#888;margin-top:2px;">052-XXX-XXXX</div></div>
   </a>
 </div>
 
@@ -349,7 +349,8 @@ var MENUS = [
 var SWD={am:['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'],pm:['14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00']};
 var SST={am:['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30'],pm:['14:00','14:30','15:00','15:30','16:00','16:30']};
 var JP=['日','月','火','水','木','金','土'];
-var S={menu:null,date:null,time:null,name:'',phone:'',visit:'new',hist:['s-main'],calY:0,calM:0,qa:{},prefillName:'',prefillPhone:''};
+var S={menu:null,date:null,time:null,name:'',phone:'',visit:'new',hist:['s-main'],calY:0,calM:0,qa:{},prefillName:'',prefillPhone:'',
+  clinicName:'東山通歯科クリニック',clinicTel:'052-XXX-XXXX',clinicAddress:'愛知県名古屋市千種区内山3丁目XX-XX',clinicAccess:'地下鉄東山線「千種駅」2番出口 徒歩2分'};
 
 function go(id){
   document.querySelectorAll('.scr').forEach(function(e){e.classList.remove('on');});
@@ -364,11 +365,19 @@ function goBack(){
 }
 function goHome(){S.hist=['s-main'];go('s-main');}
 function updateHdr(id){
-  var m={'s-main':['東山通歯科クリニック','ご用件をお選びください'],'s-reserve':['予約する','診療メニューを選択'],'s-cal':['日程を選ぶ','希望日をタップ'],'s-time':['時間を選ぶ','希望時間をタップ'],'s-form':['お客様情報','必要事項をご入力ください'],'s-confirm':['予約確認','内容をご確認ください'],'s-done':['予約完了',''],'s-myreserve':['予約確認','変更・キャンセル'],'s-hours':['診療時間','休診日・アクセス'],'s-treatments':['診療メニュー','料金・内容'],'s-contact':['お問い合わせ','電話・LINE'],'s-q':['初診問診票','事前にご記入ください'],'s-qdone':['送信完了','']};
-  var t=m[id]||['東山通歯科クリニック',''];
+  var m={'s-main':[S.clinicName,'ご用件をお選びください'],'s-reserve':['予約する','診療メニューを選択'],'s-cal':['日程を選ぶ','希望日をタップ'],'s-time':['時間を選ぶ','希望時間をタップ'],'s-form':['お客様情報','必要事項をご入力ください'],'s-confirm':['予約確認','内容をご確認ください'],'s-done':['予約完了',''],'s-myreserve':['予約確認','変更・キャンセル'],'s-hours':['診療時間','休診日・アクセス'],'s-treatments':['診療メニュー','料金・内容'],'s-contact':['お問い合わせ','電話・LINE'],'s-q':['初診問診票','事前にご記入ください'],'s-qdone':['送信完了','']};
+  var t=m[id]||[S.clinicName,''];
   document.getElementById('hdrTitle').textContent=t[0];
   document.getElementById('hdrSub').textContent=t[1];
   document.getElementById('backBtn').style.display=(id==='s-main')?'none':'block';
+}
+function applyClinicInfo(){
+  document.title=S.clinicName;
+  document.getElementById('hdrTitle').textContent=S.clinicName;
+  var tel=document.getElementById('clinicTelLink');if(tel) tel.href='tel:'+S.clinicTel;
+  var td=document.getElementById('clinicTelDisp');if(td) td.textContent=S.clinicTel;
+  var ad=document.getElementById('clinicAddressDisp');
+  if(ad) ad.innerHTML=S.clinicAddress+'<br>&#x1F687; '+S.clinicAccess;
 }
 
 function buildTreat(){
@@ -464,24 +473,34 @@ function setQ(q,v,a,b){S.qa[q]=v;document.getElementById(a).className='rb'+(v===
 function tryClose(){try{liff.closeWindow();}catch(e){window.close();}}
 
 // ============================================================
-// URLパラメーター読み取り（prefill用）
+// URLパラメーター読み取り（prefill＋クリニック情報）
 // liff.state経由にも対応（OAuth redirect後）
 // ============================================================
 (function(){
   function readParams(){
     var p=new URLSearchParams(location.search);
     var n=p.get('name'),ph=p.get('phone');
+    var cn=p.get('clinic_name'),ct=p.get('clinic_tel'),ca=p.get('clinic_address'),cac=p.get('clinic_access');
     // liff.state にエンコードされている場合をデコード
-    if((!n||!ph)&&p.get('liff.state')){
+    if(p.get('liff.state')){
       try{
         var ls=decodeURIComponent(p.get('liff.state')).replace(/^[/?]*/,'');
         var lp=new URLSearchParams(ls);
         if(!n) n=lp.get('name');
         if(!ph) ph=lp.get('phone');
+        if(!cn) cn=lp.get('clinic_name');
+        if(!ct) ct=lp.get('clinic_tel');
+        if(!ca) ca=lp.get('clinic_address');
+        if(!cac) cac=lp.get('clinic_access');
       }catch(e){}
     }
     if(n) S.prefillName=n;
     if(ph) S.prefillPhone=ph;
+    if(cn) S.clinicName=cn;
+    if(ct) S.clinicTel=ct;
+    if(ca) S.clinicAddress=ca;
+    if(cac) S.clinicAccess=cac;
+    applyClinicInfo();
   }
   // まず直接読み取り
   readParams();
