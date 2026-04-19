@@ -804,29 +804,14 @@ let state = {
 };
 
 // ================================================================
-// LIFF 初期化
+// LIFF 初期化（送信時のみ呼び出す）
 // ================================================================
-async function initLiff() {
-  // ★ まず即座にローディングを消してメニューを表示
-  document.getElementById('loadingWrap').style.display = 'none';
-
-  // URLパラメータ確認（treatment=指定の場合、直接そのメニューへ）
-  const params = new URLSearchParams(location.search);
-  const treatParam = params.get('treatment');
-  if (treatParam) {
-    const m = MENUS.find(m => m.name === treatParam);
-    if (m) {
-      selectTreatment(m);
-    }
-  }
-
-  // LIFF初期化はバックグラウンドで実行（UIをブロックしない）
+let liffReady = false;
+async function ensureLiff() {
+  if (liffReady) return;
   try {
     await liff.init({ liffId: LIFF_ID });
-    if (liff.isLoggedIn()) {
-      const profile = await liff.getProfile();
-      state.lineUserId = profile.userId;
-    }
+    liffReady = true;
   } catch(e) {
     console.warn('LIFF init error:', e.message);
   }
@@ -1069,11 +1054,11 @@ async function submitReservation() {
   const msg = `__LIFF_ALL_COMPLETE__|${state.selectedDate}|${state.selectedTime}|${state.patientName}|${state.phone}|${state.selectedMenu.name}|${state.visitType}`;
 
   try {
-    // LINEチャットに送信（n8nが受け取り処理）
-    if (liff.isInClient()) {
+    // 送信時だけLIFF初期化
+    await ensureLiff();
+    if (typeof liff !== 'undefined' && liff.isInClient()) {
       await liff.sendMessages([{ type: 'text', text: msg }]);
     } else {
-      // デバッグ用（非LINEブラウザ）
       console.log('送信メッセージ:', msg);
     }
   } catch(e) {
@@ -1118,4 +1103,56 @@ async function loadMyReservation() {
 // ================================================================
 function selectQ(qid, val) {
   state.qAnswers[qid] = val;
-  document.querySelectorAll(`[id^="${qid}-"]`).forEa
+  document.querySelectorAll(`[id^="${qid}-"]`).forEach(el => {
+    el.classList.toggle('selected', el.id === `${qid}-${val}`);
+  });
+}
+
+async function submitQuestionnaire() {
+  document.getElementById('loadingWrap').style.display = 'flex';
+  const answers = {
+    chief_complaint: document.getElementById('q1').value,
+    has_pain:        state.qAnswers['q2'] || '未回答',
+    taking_medicine: state.qAnswers['q3'] || '未回答',
+    allergy:         document.getElementById('q4').value,
+    medical_history: document.getElementById('q5').value,
+    line_user_id:    state.lineUserId
+  };
+  console.log('問診票送信:', answers);
+  // ※ ここでn8nのWebhookへPOSTする処理を追加
+  setTimeout(() => {
+    document.getElementById('loadingWrap').style.display = 'none';
+    showScreen('screen-q-success');
+  }, 800);
+}
+
+// ================================================================
+// その他
+// ================================================================
+function openMap() {
+  window.open('https://maps.google.com/?q=東山通歯科クリニック', '_blank');
+}
+
+function openLine() {
+  try { liff.closeWindow(); } catch(e) {}
+}
+
+function closeApp() {
+  try { liff.closeWindow(); } catch(e) { window.close(); }
+}
+
+// ================================================================
+// 起動 — シンプルにDOMContentLoadedのみ
+// ================================================================
+document.addEventListener('DOMContentLoaded', function() {
+  // URLパラメータ確認（treatment=指定の場合、直接そのメニューへ）
+  const params = new URLSearchParams(location.search);
+  const treatParam = params.get('treatment');
+  if (treatParam) {
+    const m = MENUS.find(menu => menu.name === treatParam);
+    if (m) selectTreatment(m);
+  }
+});
+</script>
+</body>
+</html>
